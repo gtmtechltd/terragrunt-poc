@@ -1,0 +1,8 @@
+provider "aws" {
+  alias   = "%s-%s-%s"
+  region  = "%s"
+  assume_role {  
+    role_arn     = "arn:aws:iam::%s:role/%s"
+    session_name = "terraform-%s-%s-%s"
+  }
+}
