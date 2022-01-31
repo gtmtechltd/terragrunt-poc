@@ -84,3 +84,140 @@ Comments:
 Does it work?:
 
 * Yes it does work, but obviously I had to obfuscate my test accounts in `org.hcl` and provide placeholders instead. You should therefore not expect to be able to just run this out of the box to show the POC in action, but you should have accounts set up which you can define in `org.hcl` to demonstrate the functionality in your own org
+
+Here is the complete output of the POC features run on my test org:
+
+## Simple-iam-role feature demo output
+
+```
+$ cd features/simple-iam-role && terragrunt plan
+
+Initializing modules...
+Downloading git::ssh://git@github.com/gtmtechltd/terragrunt-poc-modules?ref=v1.0.0 for tenant-1-dev...
+- tenant-1-dev in .terraform/modules/tenant-1-dev/features/simple-iam-role
+Downloading git::ssh://git@github.com/gtmtechltd/terragrunt-poc-modules?ref=v1.0.0 for tenant-2-dev...
+- tenant-2-dev in .terraform/modules/tenant-2-dev/features/simple-iam-role
+Downloading git::ssh://git@github.com/gtmtechltd/terragrunt-poc-modules?ref=v1.0.0 for tenant-1-prod...
+- tenant-1-prod in .terraform/modules/tenant-1-prod/features/simple-iam-role
+Downloading git::ssh://git@github.com/gtmtechltd/terragrunt-poc-modules?ref=v1.0.0 for tenant-2-prod...
+- tenant-2-prod in .terraform/modules/tenant-2-prod/features/simple-iam-role
+
+...
+
+Terraform will perform the following actions:
+
+  # module.tenant-1-dev.aws_iam_role.some_simple_role will be created
+  + resource "aws_iam_role" "some_simple_role" {
+      ...
+      + name                  = "some_simple_role"
+      ...
+    }
+
+  # module.tenant-2-dev.aws_iam_role.some_simple_role will be created
+  + resource "aws_iam_role" "some_simple_role" {
+      ...
+      + name                  = "some_simple_role"
+      ...
+    }
+
+  # module.tenant-1-prod.aws_iam_role.some_simple_role will be created
+  + resource "aws_iam_role" "some_simple_role" {
+      ...
+      + name                  = "some_simple_role"
+      ...
+    }
+
+  # module.tenant-2-prod.aws_iam_role.some_simple_role will be created
+  + resource "aws_iam_role" "some_simple_role" {
+      ...
+      + name                  = "some_simple_role"
+      ...
+    }
+
+Plan: 4 to add, 0 to change, 0 to destroy.
+
+```
+
+## Cloudtrail feature demo output
+
+```
+$ terragrunt plan
+Initializing modules...
+Downloading git::ssh://git@github.com/gtmtechltd/terragrunt-poc-modules?ref=v1.0.0 for master...
+- master in .terraform/modules/master/features/cloudtrail/master
+Downloading git::ssh://git@github.com/gtmtechltd/terragrunt-poc-modules?ref=v1.0.0 for tenant-1-dev...
+- tenant-1-dev in .terraform/modules/tenant-1-dev/features/cloudtrail/res
+Downloading git::ssh://git@github.com/gtmtechltd/terragrunt-poc-modules?ref=v1.0.0 for tenant-2-dev...
+- tenant-2-dev in .terraform/modules/tenant-2-dev/features/cloudtrail/res
+Downloading git::ssh://git@github.com/gtmtechltd/terragrunt-poc-modules?ref=v1.0.0 for audit-dev...
+- audit-dev in .terraform/modules/audit-dev/features/cloudtrail/audit
+
+...
+
+Terraform will perform the following actions:
+
+  # module.audit-dev.data.aws_iam_policy_document.cloudtrail_s3_bucket will be read during apply
+  # (config refers to values not yet known)
+ <= data "aws_iam_policy_document" "cloudtrail_s3_bucket"  {
+      ...
+      + statement {
+          ...
+          + actions   = [
+              + "s3:PutObject",
+            ]
+          + resources = [
+              + "arn:aws:s3:::my-cloudtrail-dev/tenant-1-dev/AWSLogs/[redacted]/*",
+              + "arn:aws:s3:::my-cloudtrail-dev/tenant-2-dev/AWSLogs/[redacted]/*",
+              + "arn:aws:s3:::my-cloudtrail-dev/audit-dev/AWSLogs/[redacted]/*",
+            ]
+          ...
+        }
+    }
+
+  # module.audit-dev.aws_s3_bucket.cloudtrail will be created
+  + resource "aws_s3_bucket" "cloudtrail" {
+      ...
+      + acl                         = "private"
+      + bucket                      = "my-cloudtrail-dev"
+      + tags                        = {
+          + "Environment" = "dev"
+          + "Name"        = "Dummy cloudtrail bucket"
+        }
+      ...
+    }
+
+  # module.audit-dev.aws_s3_bucket_policy.cloudtrail_policy will be created
+  + resource "aws_s3_bucket_policy" "cloudtrail_policy" {
+      ...
+    }
+
+  # module.audit-dev.aws_s3_bucket_public_access_block.cloudtrail will be created
+  + resource "aws_s3_bucket_public_access_block" "cloudtrail" {
+      ...
+    }
+
+  # module.tenant-1-dev.aws_cloudtrail.secops will be created
+  + resource "aws_cloudtrail" "secops" {
+      ...
+      + name                          = "my-cloudtrail-dev"
+      + s3_bucket_name                = "my-cloudtrail-dev"
+      + s3_key_prefix                 = "tenant-1-dev"
+      ...
+    }
+
+  # module.tenant-2-dev.aws_cloudtrail.secops will be created
+  + resource "aws_cloudtrail" "secops" {
+      ...
+      + name                          = "my-cloudtrail-dev"
+      + s3_bucket_name                = "my-cloudtrail-dev"
+      + s3_key_prefix                 = "tenant-2-dev"
+      ...
+    }
+
+Plan: 5 to add, 0 to change, 0 to destroy.
+
+─────────────────────────────────────────────────────────────────────────────
+
+Note: You didn't use the -out option to save this plan, so Terraform can't
+guarantee to take exactly these actions if you run "terraform apply" now.
+```
