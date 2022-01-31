@@ -17,5 +17,5 @@ inputs = {
 }
 
 terraform {
-  source = "git::git@github.com:gtmtechltd/terragrunt-poc-modules.git//base?ref=v0.0.2"
+  source = "git::git@github.com:gtmtechltd/terragrunt-poc-modules.git//base?ref=v1.0.0"
 }
