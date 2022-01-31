@@ -2,7 +2,7 @@ locals {
   account_groups = {
     master = {
       account_filter_regex = "master",
-      source               = "git::git@github.com:gtmtechltd/terragrunt-poc-modules//features/cloudtrail/master?ref=v0.0.2",
+      source               = "git::git@github.com:gtmtechltd/terragrunt-poc-modules//features/cloudtrail/master?ref=v1.0.0",
       providers            = {
         "org-viewer"       = {
           "path"    = "my-org-admin-role",
@@ -15,7 +15,7 @@ locals {
     },
     audit-dev = {
       account_filter_regex = "audit-dev",
-      source               = "git::git@github.com:gtmtechltd/terragrunt-poc-modules//features/cloudtrail/audit?ref=v0.0.2",
+      source               = "git::git@github.com:gtmtechltd/terragrunt-poc-modules//features/cloudtrail/audit?ref=v1.0.0",
       providers            = {
         "security-admin" = {
           "path"    = "my-security-admin-role",
@@ -29,7 +29,7 @@ locals {
     },
     tenants-dev = {
       account_filter_regex = "tenant-.*-dev",
-      source               = "git::git@github.com:gtmtechltd/terragrunt-poc-modules//features/cloudtrail/tenant?ref=v0.0.2",
+      source               = "git::git@github.com:gtmtechltd/terragrunt-poc-modules//features/cloudtrail/tenant?ref=v1.0.0",
       providers            = {
         "security-admin" = {
           "path"    = "my-security-admin-role",
@@ -43,7 +43,7 @@ locals {
     }
     audit-prod = {
       account_filter_regex = "audit-prod",
-      source               = "git::git@github.com:gtmtechltd/terragrunt-poc-modules//features/cloudtrail/audit?ref=v0.0.2",
+      source               = "git::git@github.com:gtmtechltd/terragrunt-poc-modules//features/cloudtrail/audit?ref=v1.0.0",
       providers            = {
         "security-admin" = {
           "path"    = "my-security-admin-role",
@@ -57,7 +57,7 @@ locals {
     },
     tenants-prod = {
       account_filter_regex = "tenant-.*-prod",
-      source               = "git::git@github.com:gtmtechltd/terragrunt-poc-modules//features/cloudtrail/tenant?ref=v0.0.2",
+      source               = "git::git@github.com:gtmtechltd/terragrunt-poc-modules//features/cloudtrail/tenant?ref=v1.0.0",
       providers            = {
         "security-admin" = {
           "path"    = "my-security-admin-role",
