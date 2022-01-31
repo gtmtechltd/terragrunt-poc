@@ -56,13 +56,13 @@ Requirements:
 
 How it works:
 
-* Although you cannot do foreach on a terraform provider, or foreach in a terragrunt generate, you can use generate a bunch of provider definitions in terragrunt using `formatlist()` within the contents of a `generate{}` block.
-* A feature should be able to select which accounts it operates on. This is accomplished by being able to pass through a list of accounts from the feature to the terragrunt root where it is interpolated into providers.
-* A read_terragrunt_config() defined in the root, refers to the include_path, allowing reading of feature config from the parent's perspective.
-* A feature needs the ability to operate on different subsections of accounts in different ways. For example a VPC attachment to a central TransitGateway in a separate account, or a Cloudtrail propagation to a central audit account.
+* Although you cannot use `for_each` on a terraform provider, or `for_each` in a terragrunt `generate{}` block, you can generate a bunch of provider definitions in a single generated file using `formatlist()` within the contents of a `generate{}` block.
+* A feature should be able to select which accounts it operates on. This is accomplished by being able to pass through a list of accounts from the feature to the parent terragrunt config where it is interpolated into many providers and module calls.
+* This is accomplished by using `read_terragrunt_config()` defined in the parent terragrunt config, referring to the `include_path`, which allows the reading of feature based config from the parent config's perspective.
+* A feature needs the ability to operate on different _subgroups_ of accounts in different ways. Examples include a VPC attachment to a central TransitGateway in a separate account with corresponding static routes in the TransitGateway itself, or a Cloudtrail propagation to a central audit account, or a Peering Connection with routes on both sides.
 * To accomplish this, we define account-groups in the `feature/config.hcl`, calling a different module and provider(s) for each one.
-* A reasonable way to select the individual accounts for each account-group was to use a regex match on the AWS account-names (as defined in `org.hcl`) - by naming convention
-* Providers need more information than just the account names. Account IDs, roles, and regions all need specifying.
+* A reasonable way to select the individual accounts for each account-group was to use a regex match on the AWS account-names (as defined in `org.hcl`) - by exploiting a naming convention around accounts.
+* `provider{}` blocks need more information than just account names. Account IDs, roles, and regions all need specifying. This is all interpolated/combined from the `feature/config.hcl` file and the parent `org.hcl` file.
 * Each account_group can specify a different target module, and a different set of providers to pass through, as well as different variables and different dependencies.
 * The parent `accounts.hcl` takes all this information and generates a `providers.tf` file and `modules.tf` file.
 * Terragrunt does all the heavy lifting. As soon as you're in the feature module itself, all the config is present, and you can call further modules easily.
@@ -79,7 +79,7 @@ Further areas for development:
 
 Comments:
 
-* A `foreach` on either terraform providers, or terragrunt generate blocks would help with the need to generate dynamic code - and make it more readable.
+* A `for_each` on either terraform providers, or terragrunt generate blocks would help with the need to generate dynamic code - and make it more readable. There are issues in both terraform and terragrunt githubs to request this feature, but there has been no sign of an impending implementation for a long time.
 
 Does it work?:
 
