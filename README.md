@@ -2,9 +2,23 @@
 
 This repository contains a POC to show feature based terragrunt/terraform development.
 
+## Background
+
+When operating on very large AWS estates consisting of many hundreds of AWS accounts, it may seem natural to setup terraform or terragrunt in a way that there is one statefile per account. In this way you can operate on each account in isolation.
+
+However with different types of accounts necessary (eg network backbone accounts, audit accounts for security, and tenant accounts for all tenants of the org), this can quickly become cumbersome, with different "features" requiring terraforming different things in different accounts. This then requires a lot of orchestration and the need for terragrunt and/or atlantis.
+
+A different option would be to organise terraform/terragrunt and the statefile along feature boundaries. So that a single feature (such as a cloudtrail setup, or a transit gateway connection) can have its own statefile with all accounts applied in the same place.
+
+Doing this is naturally difficult, because it requires that different aws providers exist so that terraform can have the permissions to operate in each of the accounts it needs to. It is not currently possible to generate provider configuration dynamically in terraform using concepts such as `for_each`, `count` or `dynamic` blocks, because of terraform language constraints. Not only this, but any providers being dynamically created also need to be passed into terraform modules via the `provider{}` sub-block, which means that both providers and module calls need to be dynamically generated.
+
+This POC aims to create a working model where both providers and module calls can be generated from a single list or multiple lists of accounts - so that for a single feature, terragrunt will spin up all the cross-account providers necessary to implement the feature across the whole org, run all the configuration everywhere, and store the state for that feature in a single statefile.
+
 It seems others also consider feature based terraform as a possible nirvana. I found this article interesting, although he has not finished [link](https://medium.com/geekculture/from-terralith-to-terraservice-with-terraform-acf990e65578)
 
-This particular POC assumes that you own an AWS Organization with multiple accounts, their accounts are defined in `org.hcl` (perhaps it is possible to look these up instead dynamically). In particular it expects that to demonstrate cross-account working, you have a structure like this:
+## POC
+
+This particular POC assumes that you own an AWS Organization with multiple accounts, and the accounts are defined in `org.hcl`. It may be possible to look these up instead of statically defining them in such a file. In order to demonstrate cross-account features, this POC is designed for the following kind of AWS::Organizations structure setup:
 
 ```
                             .--------.
@@ -32,7 +46,7 @@ For demonstration purposes, it also assumes that you have the following roles av
 | all tenant accounts | my-security-admin-role |
 | all audit accounts  | my-security-admin-role |
 
-Note that it this POC implementation allows you to specify multiple roles and have multiple providers for each account (to do multi-provider work within an account).
+Note that this POC implementation allows you to specify multiple roles and have multiple providers for each account (to do multi-provider work within an account).
 
 The project is split up into "features" which can be found in the `features/` directory each with their own `README.md`
 
@@ -66,3 +80,7 @@ Further areas for development:
 Comments:
 
 * A `foreach` on either terraform providers, or terragrunt generate blocks would help with the need to generate dynamic code - and make it more readable.
+
+Does it work?:
+
+* Yes it does work, but obviously I had to obfuscate my test accounts in `org.hcl` and provide placeholders instead. You should therefore not expect to be able to just run this out of the box to show the POC in action, but you should have accounts set up which you can define in `org.hcl` to demonstrate the functionality in your own org
