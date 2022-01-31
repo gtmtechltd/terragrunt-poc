@@ -51,12 +51,12 @@ locals {
         }
       },
       variables            = {
-        "environment"  = "\"dev\""
+        "environment"  = "\"prod\""
         "org_accounts" = "module.master.accounts"
       }
     },
     tenants-prod = {
-      account_filter_regex = "tenant-.*-dev",
+      account_filter_regex = "tenant-.*-prod",
       source               = "git::git@github.com:gtmtechltd/terragrunt-poc-modules//features/cloudtrail/tenant?ref=v0.0.2",
       providers            = {
         "security-admin" = {
@@ -65,7 +65,7 @@ locals {
         }
       },
       variables            = {
-        "environment"            = "\"dev\""
+        "environment"            = "\"prod\""
         "cloudtrail_bucket_name" = "module.audit-prod.cloudtrail_bucket_name"
       }
     }
